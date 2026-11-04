@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>九九乘法遊樂園</title>
+<style>
+
+.z{display:inline-flex;align-items:center;vertical-align:middle;line-height:1;margin:0 .2em 0 .03em}
+.z .h{display:inline-block}
+.z .b{display:inline-flex;flex-direction:column;justify-content:center;font-size:.4em;line-height:1.02;
+  margin-left:.12em;min-width:1em;font-weight:400;position:relative;letter-spacing:0}
+.z .b span{display:block;text-align:center;position:relative}
+.z .b .l{line-height:.6}
+.z .b .zt{position:absolute;left:100%;top:-.45em;font-style:normal;margin-left:-.05em}
+
+*{box-sizing:border-box}
+body{margin:0;font-family:"PingFang TC","Microsoft JhengHei","Noto Sans TC","Noto Sans CJK TC",sans-serif;background:#fff8ec;color:#2b2b2b;font-size:20px}
+.nozy .z .b{display:none}.nozy .z{margin:0}
+header{background:linear-gradient(120deg,#f2994a,#e86fb0);color:#fff;padding:12px 16px 0;position:sticky;top:0;z-index:5;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px;max-width:980px;margin:0 auto}
+h1{font-size:26px;margin:0}
+.toggles{display:flex;gap:6px;align-items:center}
+.pill{white-space:nowrap;background:rgba(255,255,255,.25);border:2px solid #fff;color:#fff;border-radius:99px;padding:4px 12px;font-size:16px;cursor:pointer;font-weight:700;font-family:inherit}
+.stars{font-weight:800;font-size:20px;white-space:nowrap}
+nav{display:flex;gap:4px;max-width:980px;margin:10px auto 0;overflow-x:auto}
+nav button{flex:1;min-width:110px;white-space:nowrap;border:0;border-radius:14px 14px 0 0;padding:8px 6px;font-size:18px;font-weight:800;background:rgba(255,255,255,.3);color:#fff;cursor:pointer;font-family:inherit}
+nav button.on{background:#fff8ec;color:#c0392b}
+main{max-width:980px;margin:0 auto;padding:16px}
+.view{display:none}.view.on{display:block}
+.panel{background:#fff;border-radius:20px;padding:16px;box-shadow:0 2px 0 #f0dfc0;margin-bottom:14px}
+h2{margin:0 0 8px;color:#c0392b;font-size:24px}
+.muted{color:#777;font-size:17px}
+.btn{border:0;border-radius:16px;padding:10px 18px;font-size:20px;font-weight:800;cursor:pointer;font-family:inherit;background:#2d9cdb;color:#fff;box-shadow:0 4px 0 #1a6fa3;margin:4px}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #1a6fa3}
+.btn.g{background:#27ae60;box-shadow:0 4px 0 #1a7a43}.btn.o{background:#f2994a;box-shadow:0 4px 0 #b35c10}
+.btn.r{background:#eb5757;box-shadow:0 4px 0 #b33434}.btn.w{background:#fff;color:#2b2b2b;border:2px solid #ddd;box-shadow:0 4px 0 #ddd}
+.btn.sel{outline:4px solid #f2c94c}
+/* map */
+.mapwrap{display:flex;gap:16px;flex-wrap:wrap}
+table.map{border-collapse:separate;border-spacing:3px;font-weight:800}
+table.map th,table.map td{width:44px;height:40px;text-align:center;border-radius:8px;font-size:18px}
+table.map th{color:#fff}
+table.map td{background:#fff;border:2px solid #eadfca;cursor:pointer;transition:.15s}
+table.map td:hover{transform:scale(1.12)}
+table.map td.hl{background:#fff2b3;border-color:#f2c94c}
+table.map td.cur{background:#eb5757;color:#fff;border-color:#b33434}
+table.map td.m1{background:#d9f2e3}table.map td.m2{background:#8fd6aa}
+.detail{flex:1;min-width:260px}
+.eqbig{font-size:44px;font-weight:900;text-align:center;font-family:ui-monospace,Menlo,monospace}
+.kjbig{font-size:34px;font-weight:900;text-align:center;color:#c0392b;margin:6px 0}
+.dots{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0}
+.grp{background:#fff8e6;border:2px solid #e0c58a;border-radius:14px;padding:6px;display:grid;gap:4px}
+.dot{width:16px;height:16px;border-radius:50%}
+.hint{background:#fff6d6;border:3px solid #f2c94c;border-radius:16px;padding:8px 12px;margin-top:8px;font-size:18px}
+/* number pick */
+.picks{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.pick{width:56px;height:56px;border-radius:50%;border:0;color:#fff;font-size:26px;font-weight:900;cursor:pointer;opacity:.45;font-family:inherit}
+.pick.on{opacity:1;outline:4px solid #2b2b2b}
+/* flash card */
+.card{width:min(420px,100%);height:250px;margin:10px auto;perspective:900px;cursor:pointer}
+.inner{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}
+.card.flip .inner{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;border-radius:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;backface-visibility:hidden;box-shadow:0 6px 0 rgba(0,0,0,.12)}
+.front{background:#fff;border:5px solid #2d9cdb}
+.back{background:#fff6d6;border:5px solid #f2c94c;transform:rotateY(180deg)}
+.face .eqbig{font-size:56px}
+/* quiz */
+.qbox{text-align:center}
+.qtext{font-size:26px;font-weight:800;margin:8px 0;line-height:2.1}
+.qeq{text-align:center;font-size:52px;font-weight:900;font-family:ui-monospace,Menlo,monospace;margin:8px 0}
+.ansshow{display:inline-block;min-width:110px;border-bottom:5px solid #2d9cdb;color:#2d9cdb}
+.pad{display:grid;grid-template-columns:repeat(3,84px);gap:8px;justify-content:center;margin:10px 0}
+.pad button{height:64px;font-size:30px;font-weight:900;border-radius:16px;border:0;background:#eef6fc;box-shadow:0 4px 0 #b7d3e8;cursor:pointer;font-family:inherit}
+.pad button.ok{background:#27ae60;color:#fff;box-shadow:0 4px 0 #1a7a43;font-size:20px;white-space:nowrap}
+.pad button:active{transform:translateY(3px);box-shadow:none}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:10px 0}
+.opts button{font-size:26px;font-weight:900;padding:14px 8px;border-radius:18px;border:3px solid #ddd;background:#fff;cursor:pointer;font-family:inherit}
+.opts button.right{background:#d9f2e3;border-color:#27ae60}.opts button.wrong{background:#ffe3e3;border-color:#eb5757}
+.fb{min-height:52px;font-size:21px;font-weight:800;margin:6px 0;line-height:2}
+.fb.good{color:#1a7a43}.fb.bad{color:#b33434}
+.prog{height:14px;background:#eee;border-radius:99px;overflow:hidden;margin:6px 0}
+.prog i{display:block;height:100%;background:linear-gradient(90deg,#f2c94c,#f2994a);transition:.3s}
+.plates{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:6px 0}
+.result{text-align:center;font-size:24px}
+.bigstar{font-size:60px;letter-spacing:6px}
+.fingers{display:flex;gap:4px;justify-content:center;align-items:flex-end;height:90px;margin:6px 0}
+.fingers span{width:30px;height:80px;background:#ffd9b8;border:2px solid #d79b6b;border-radius:14px 14px 6px 6px;display:flex;justify-content:center;font-size:14px;cursor:pointer;font-weight:800}
+.fingers span.down{height:32px;background:#e86fb0;border-color:#b03b7c;color:#fff}
+.fingers .gap{width:16px;background:none;border:0}
+.wrongs{display:flex;flex-wrap:wrap;gap:8px}
+.wrongs span{background:#ffe3e3;border-radius:12px;padding:4px 10px;font-weight:800;font-family:ui-monospace,Menlo,monospace}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
+@media(max-width:560px){h1{font-size:18px}nav button{min-width:96px;font-size:16px}table.map th,table.map td{width:31px;height:32px;font-size:14px}.qeq{font-size:40px}.pad{grid-template-columns:repeat(3,74px)}}
+</style>
+</head>
+<body>
+<header>
+<div class="top">
+<h1><span class="z"><span class="h">九</span><span class="b"><span>ㄐ</span><span>ㄧ</span><span>ㄡ<i class="zt">ˇ</i></span></span></span><span class="z"><span class="h">九</span><span class="b"><span>ㄐ</span><span>ㄧ</span><span>ㄡ<i class="zt">ˇ</i></span></span></span><span class="z"><span class="h">乘</span><span class="b"><span>ㄔ</span><span>ㄥ<i class="zt">ˊ</i></span></span></span><span class="z"><span class="h">法</span><span class="b"><span>ㄈ</span><span>ㄚ<i class="zt">ˇ</i></span></span></span><span class="z"><span class="h">遊</span><span class="b"><span>ㄧ</span><span>ㄡ<i class="zt">ˊ</i></span></span></span><span class="z"><span class="h">樂</span><span class="b"><span>ㄌ</span><span>ㄜ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">園</span><span class="b"><span>ㄩ</span><span>ㄢ<i class="zt">ˊ</i></span></span></span></h1>
+<div class="toggles">
+<span class="stars nz">⭐ <b id="starCount">0</b></span>
+<button class="pill" id="zyBtn"><span class="z"><span class="h">注</span><span class="b"><span>ㄓ</span><span>ㄨ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">音</span><span class="b"><span>ㄧ</span><span>ㄣ</span></span></span>：<span class="z"><span class="h">開</span><span class="b"><span>ㄎ</span><span>ㄞ</span></span></span></button>
+</div>
+</div>
+<nav>
+<button class="on" data-v="map"><span class="z"><span class="h">乘</span><span class="b"><span>ㄔ</span><span>ㄥ<i class="zt">ˊ</i></span></span></span><span class="z"><span class="h">法</span><span class="b"><span>ㄈ</span><span>ㄚ<i class="zt">ˇ</i></span></span></span><span class="z"><span class="h">地</span><span class="b"><span>ㄉ</span><span>ㄧ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">圖</span><span class="b"><span>ㄊ</span><span>ㄨ<i class="zt">ˊ</i></span></span></span></button>
+<button data-v="cards"><span class="z"><span class="h">口</span><span class="b"><span>ㄎ</span><span>ㄡ<i class="zt">ˇ</i></span></span></span><span class="z"><span class="h">訣</span><span class="b"><span>ㄐ</span><span>ㄩ</span><span>ㄝ<i class="zt">ˊ</i></span></span></span><span class="z"><span class="h">卡</span><span class="b"><span>ㄎ</span><span>ㄚ<i class="zt">ˇ</i></span></span></span></button>
+<button data-v="tricks"><span class="z"><span class="h">記</span><span class="b"><span>ㄐ</span><span>ㄧ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">憶</span><span class="b"><span>ㄧ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">魔</span><span class="b"><span>ㄇ</span><span>ㄛ<i class="zt">ˊ</i></span></span></span><span class="z"><span class="h">法</span><span class="b"><span>ㄈ</span><span>ㄚ<i class="zt">ˇ</i></span></span></span></button>
+<button data-v="quick"><span class="z"><span class="h">快</span><span class="b"><span>ㄎ</span><span>ㄨ</span><span>ㄞ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">問</span><span class="b"><span>ㄨ</span><span>ㄣ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">快</span><span class="b"><span>ㄎ</span><span>ㄨ</span><span>ㄞ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">答</span><span class="b"><span>ㄉ</span><span>ㄚ<i class="zt">ˊ</i></span></span></span></button>
+<button data-v="exam"><span class="z"><span class="h">考</span><span class="b"><span>ㄎ</span><span>ㄠ<i class="zt">ˇ</i></span></span></span><span class="z"><span class="h">試</span><span class="b"><span>ㄕ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">練</span><span class="b"><span>ㄌ</span><span>ㄧ</span><span>ㄢ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">習</span><span class="b"><span>ㄒ</span><span>ㄧ<i class="zt">ˊ</i></span></span></span></button>
+<button data-v="me"><span class="z"><span class="h">我</span><span class="b"><span>ㄨ</span><span>ㄛ<i class="zt">ˇ</i></span></span></span><span class="z"><span class="h">的</span><span class="b"><span class="l">˙</span><span>ㄉ</span><span>ㄜ</span></span></span><span class="z"><span class="h">星</span><span class="b"><span>ㄒ</span><span>ㄧ</span><span>ㄥ</span></span></span><span class="z"><span class="h">星</span><span class="b"><span>ㄒ</span><span>ㄧ</span><span>ㄥ</span></span></span></button>
+</nav>
+</header>
+<main>
+<!-- 地圖 -->
+<section class="view on" id="v-map">
+<div class="panel">
+<h2><span class="z"><span class="h">九</span><span class="b"><span>ㄐ</span><span>ㄧ</span><span>ㄡ<i class="zt">ˇ</i></span></span></span><span class="z"><span class="h">九</span><span class="b"><span>ㄐ</span><span>ㄧ</span><span>ㄡ<i class="zt">ˇ</i></span></span></span><span class="z"><span class="h">乘</span><span class="b"><span>ㄔ</span><span>ㄥ<i class="zt">ˊ</i></span></span></span><span class="z"><span class="h">法</span><span class="b"><span>ㄈ</span><span>ㄚ<i class="zt">ˇ</i></span></span></span><span class="z"><span class="h">地</span><span class="b"><span>ㄉ</span><span>ㄧ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">圖</span><span class="b"><span>ㄊ</span><span>ㄨ<i class="zt">ˊ</i></span></span></span></h2>
+<p class="muted"><span class="z"><span class="h">點</span><span class="b"><span>ㄉ</span><span>ㄧ</span><span>ㄢ<i class="zt">ˇ</i></span></span></span><span class="z"><span class="h">一</span><span class="b"><span>ㄧ</span></span></span><span class="z"><span class="h">個</span><span class="b"><span>ㄍ</span><span>ㄜ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">格</span><span class="b"><span>ㄍ</span><span>ㄜ<i class="zt">ˊ</i></span></span></span><span class="z"><span class="h">子</span><span class="b"><span class="l">˙</span><span>ㄗ</span></span></span>，<span class="z"><span class="h">看</span><span class="b"><span>ㄎ</span><span>ㄢ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">看</span><span class="b"><span class="l">˙</span><span>ㄎ</span><span>ㄢ</span></span></span><span class="z"><span class="h">它</span><span class="b"><span>ㄊ</span><span>ㄚ</span></span></span><span class="z"><span class="h">是</span><span class="b"><span>ㄕ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">怎</span><span class="b"><span>ㄗ</span><span>ㄣ<i class="zt">ˇ</i></span></span></span><span class="z"><span class="h">麼</span><span class="b"><span class="l">˙</span><span>ㄇ</span><span>ㄜ</span></span></span><span class="z"><span class="h">來</span><span class="b"><span>ㄌ</span><span>ㄞ<i class="zt">ˊ</i></span></span></span><span class="z"><span class="h">的</span><span class="b"><span class="l">˙</span><span>ㄉ</span><span>ㄜ</span></span></span>。<span class="z"><span class="h">綠</span><span class="b"><span>ㄌ</span><span>ㄩ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">色</span><span class="b"><span>ㄙ</span><span>ㄜ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">的</span><span class="b"><span class="l">˙</span><span>ㄉ</span><span>ㄜ</span></span></span><span class="z"><span class="h">格</span><span class="b"><span>ㄍ</span><span>ㄜ<i class="zt">ˊ</i></span></span></span><span class="z"><span class="h">子</span><span class="b"><span class="l">˙</span><span>ㄗ</span></span></span><span class="z"><span class="h">是</span><span class="b"><span>ㄕ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">你</span><span class="b"><span>ㄋ</span><span>ㄧ<i class="zt">ˇ</i></span></span></span><span class="z"><span class="h">已</span><span class="b"><span>ㄧ<i class="zt">ˇ</i></span></span></span><span class="z"><span class="h">經</span><span class="b"><span>ㄐ</span><span>ㄧ</span><span>ㄥ</span></span></span><span class="z"><span class="h">很</span><span class="b"><span>ㄏ</span><span>ㄣ<i class="zt">ˇ</i></span></span></span><span class="z"><span class="h">熟</span><span class="b"><span>ㄕ</span><span>ㄡ<i class="zt">ˊ</i></span></span></span><span class="z"><span class="h">的</span><span class="b"><span class="l">˙</span><span>ㄉ</span><span>ㄜ</span></span></span>！</p>
+<div class="mapwrap">
+<table class="map nz" id="map"></table>
+<div class="detail" id="detail"></div>
+</div>
+</div>
+</section>
+<!-- 口訣卡 -->
+<section class="view" id="v-cards">
+<div class="panel">
+<h2><span class="z"><span class="h">口</span><span class="b"><span>ㄎ</span><span>ㄡ<i class="zt">ˇ</i></span></span></span><span class="z"><span class="h">訣</span><span class="b"><span>ㄐ</span><span>ㄩ</span><span>ㄝ<i class="zt">ˊ</i></span></span></span><span class="z"><span class="h">翻</span><span class="b"><span>ㄈ</span><span>ㄢ</span></span></span><span class="z"><span class="h">翻</span><span class="b"><span>ㄈ</span><span>ㄢ</span></span></span><span class="z"><span class="h">卡</span><span class="b"><span>ㄎ</span><span>ㄚ<i class="zt">ˇ</i></span></span></span></h2>
+<p class="muted"><span class="z"><span class="h">選</span><span class="b"><span>ㄒ</span><span>ㄩ</span><span>ㄢ<i class="zt">ˇ</i></span></span></span><span class="z"><span class="h">一</span><span class="b"><span>ㄧ</span></span></span><span class="z"><span class="h">個</span><span class="b"><span>ㄍ</span><span>ㄜ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">數</span><span class="b"><span>ㄕ</span><span>ㄨ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">字</span><span class="b"><span>ㄗ<i class="zt">ˋ</i></span></span></span>，<span class="z"><span class="h">先</span><span class="b"><span>ㄒ</span><span>ㄧ</span><span>ㄢ</span></span></span><span class="z"><span class="h">自</span><span class="b"><span>ㄗ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">己</span><span class="b"><span>ㄐ</span><span>ㄧ<i class="zt">ˇ</i></span></span></span><span class="z"><span class="h">念</span><span class="b"><span>ㄋ</span><span>ㄧ</span><span>ㄢ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">念</span><span class="b"><span class="l">˙</span><span>ㄋ</span><span>ㄧ</span><span>ㄢ</span></span></span><span class="z"><span class="h">看</span><span class="b"><span>ㄎ</span><span>ㄢ<i class="zt">ˋ</i></span></span></span>，<span class="z"><span class="h">再</span><span class="b"><span>ㄗ</span><span>ㄞ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">點</span><span class="b"><span>ㄉ</span><span>ㄧ</span><span>ㄢ<i class="zt">ˇ</i></span></span></span><span class="z"><span class="h">卡</span><span class="b"><span>ㄎ</span><span>ㄚ<i class="zt">ˇ</i></span></span></span><span class="z"><span class="h">片</span><span class="b"><span>ㄆ</span><span>ㄧ</span><span>ㄢ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">翻</span><span class="b"><span>ㄈ</span><span>ㄢ</span></span></span><span class="z"><span class="h">過</span><span class="b"><span>ㄍ</span><span>ㄨ</span><span>ㄛ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">來</span><span class="b"><span>ㄌ</span><span>ㄞ<i class="zt">ˊ</i></span></span></span><span class="z"><span class="h">對</span><span class="b"><span>ㄉ</span><span>ㄨ</span><span>ㄟ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">答</span><span class="b"><span>ㄉ</span><span>ㄚ<i class="zt">ˊ</i></span></span></span><span class="z"><span class="h">案</span><span class="b"><span>ㄢ<i class="zt">ˋ</i></span></span></span>。</p>
+<div class="picks nz" id="cardPicks"></div>
+<div class="card" id="card"><div class="inner">
+<div class="face front"><div class="eqbig nz" id="cardFront"></div><div class="muted" id="cardTip"></div></div>
+<div class="face back"><div class="eqbig nz" id="cardBackEq"></div><div class="kjbig" id="cardBackKj"></div></div>
+</div></div>
+<div style="text-align:center">
+<button class="btn w" id="cardSay"><span class="z"><span class="h">念</span><span class="b"><span>ㄋ</span><span>ㄧ</span><span>ㄢ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">給</span><span class="b"><span>ㄍ</span><span>ㄟ<i class="zt">ˇ</i></span></span></span><span class="z"><span class="h">我</span><span class="b"><span>ㄨ</span><span>ㄛ<i class="zt">ˇ</i></span></span></span><span class="z"><span class="h">聽</span><span class="b"><span>ㄊ</span><span>ㄧ</span><span>ㄥ</span></span></span></button>
+<button class="btn r" id="cardNo"><span class="z"><span class="h">還</span><span class="b"><span>ㄏ</span><span>ㄞ<i class="zt">ˊ</i></span></span></span><span class="z"><span class="h">不</span><span class="b"><span>ㄅ</span><span>ㄨ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">熟</span><span class="b"><span>ㄕ</span><span>ㄡ<i class="zt">ˊ</i></span></span></span></button>
+<button class="btn g" id="cardYes"><span class="z"><span class="h">我</span><span class="b"><span>ㄨ</span><span>ㄛ<i class="zt">ˇ</i></span></span></span><span class="z"><span class="h">會</span><span class="b"><span>ㄏ</span><span>ㄨ</span><span>ㄟ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">了</span><span class="b"><span class="l">˙</span><span>ㄌ</span><span>ㄜ</span></span></span></button>
+</div>
+<div class="muted" id="cardInfo" style="text-align:center"></div>
+</div>
+</section>
+<!-- 記憶魔法 -->
+<section class="view" id="v-tricks">
+<div class="panel">
+<h2><span class="z"><span class="h">記</span><span class="b"><span>ㄐ</span><span>ㄧ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">憶</span><span class="b"><span>ㄧ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">魔</span><span class="b"><span>ㄇ</span><span>ㄛ<i class="zt">ˊ</i></span></span></span><span class="z"><span class="h">法</span><span class="b"><span>ㄈ</span><span>ㄚ<i class="zt">ˇ</i></span></span></span></h2>
+<div class="picks nz" id="trickPicks"></div>
+<div id="trickBody"></div>
+</div>
+</section>
+<!-- 快問快答 -->
+<section class="view" id="v-quick">
+<div class="panel" id="quickSetup">
+<h2><span class="z"><span class="h">快</span><span class="b"><span>ㄎ</span><span>ㄨ</span><span>ㄞ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">問</span><span class="b"><span>ㄨ</span><span>ㄣ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">快</span><span class="b"><span>ㄎ</span><span>ㄨ</span><span>ㄞ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">答</span><span class="b"><span>ㄉ</span><span>ㄚ<i class="zt">ˊ</i></span></span></span></h2>
+<p class="muted"><span class="z"><span class="h">一</span><span class="b"><span>ㄧ</span></span></span><span class="z"><span class="h">次</span><span class="b"><span>ㄘ<i class="zt">ˋ</i></span></span></span> 10 <span class="z"><span class="h">題</span><span class="b"><span>ㄊ</span><span>ㄧ<i class="zt">ˊ</i></span></span></span>，<span class="z"><span class="h">用</span><span class="b"><span>ㄩ</span><span>ㄥ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">數</span><span class="b"><span>ㄕ</span><span>ㄨ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">字</span><span class="b"><span>ㄗ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">鍵</span><span class="b"><span>ㄐ</span><span>ㄧ</span><span>ㄢ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">輸</span><span class="b"><span>ㄕ</span><span>ㄨ</span></span></span><span class="z"><span class="h">入</span><span class="b"><span>ㄖ</span><span>ㄨ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">答</span><span class="b"><span>ㄉ</span><span>ㄚ<i class="zt">ˊ</i></span></span></span><span class="z"><span class="h">案</span><span class="b"><span>ㄢ<i class="zt">ˋ</i></span></span></span>。</p>
+<div>
+<button class="btn o" data-set="2,5,4,8"><span class="z"><span class="h">第</span><span class="b"><span>ㄉ</span><span>ㄧ<i class="zt">ˋ</i></span></span></span> 7 <span class="z"><span class="h">單</span><span class="b"><span>ㄉ</span><span>ㄢ</span></span></span><span class="z"><span class="h">元</span><span class="b"><span>ㄩ</span><span>ㄢ<i class="zt">ˊ</i></span></span></span>（2、5、4、8）</button>
+<button class="btn g" data-set="3,6,7,9"><span class="z"><span class="h">第</span><span class="b"><span>ㄉ</span><span>ㄧ<i class="zt">ˋ</i></span></span></span> 9 <span class="z"><span class="h">單</span><span class="b"><span>ㄉ</span><span>ㄢ</span></span></span><span class="z"><span class="h">元</span><span class="b"><span>ㄩ</span><span>ㄢ<i class="zt">ˊ</i></span></span></span>（3、6、7、9）</button>
+<button class="btn" data-set="2,3,4,5,6,7,8,9"><span class="z"><span class="h">全</span><span class="b"><span>ㄑ</span><span>ㄩ</span><span>ㄢ<i class="zt">ˊ</i></span></span></span><span class="z"><span class="h">部</span><span class="b"><span>ㄅ</span><span>ㄨ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">一</span><span class="b"><span>ㄧ</span></span></span><span class="z"><span class="h">起</span><span class="b"><span>ㄑ</span><span>ㄧ<i class="zt">ˇ</i></span></span></span><span class="z"><span class="h">來</span><span class="b"><span>ㄌ</span><span>ㄞ<i class="zt">ˊ</i></span></span></span></button>
+<button class="btn r" data-set="wrong"><span class="z"><span class="h">練</span><span class="b"><span>ㄌ</span><span>ㄧ</span><span>ㄢ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">習</span><span class="b"><span>ㄒ</span><span>ㄧ<i class="zt">ˊ</i></span></span></span><span class="z"><span class="h">錯</span><span class="b"><span>ㄘ</span><span>ㄨ</span><span>ㄛ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">題</span><span class="b"><span>ㄊ</span><span>ㄧ<i class="zt">ˊ</i></span></span></span></button>
+</div>
+</div>
+<div class="panel qbox" id="quickPlay" style="display:none">
+<div class="prog"><i id="qProg"></i></div>
+<div class="muted" id="qCount"></div>
+<div class="qeq nz"><span id="qA"></span> × <span id="qB"></span> = <span class="ansshow" id="qIn"> </span></div>
+<div class="fb" id="qFb"></div>
+<div class="pad nz" id="qPad"></div>
+</div>
+<div class="panel result" id="quickEnd" style="display:none"></div>
+</section>
+<!-- 考試練習 -->
+<section class="view" id="v-exam">
+<div class="panel" id="examSetup">
+<h2><span class="z"><span class="h">考</span><span class="b"><span>ㄎ</span><span>ㄠ<i class="zt">ˇ</i></span></span></span><span class="z"><span class="h">試</span><span class="b"><span>ㄕ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">練</span><span class="b"><span>ㄌ</span><span>ㄧ</span><span>ㄢ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">習</span><span class="b"><span>ㄒ</span><span>ㄧ<i class="zt">ˊ</i></span></span></span></h2>
+<p class="muted"><span class="z"><span class="h">跟</span><span class="b"><span>ㄍ</span><span>ㄣ</span></span></span><span class="z"><span class="h">南</span><span class="b"><span>ㄋ</span><span>ㄢ<i class="zt">ˊ</i></span></span></span><span class="z"><span class="h">一</span><span class="b"><span>ㄧ</span></span></span><span class="z"><span class="h">版</span><span class="b"><span>ㄅ</span><span>ㄢ<i class="zt">ˇ</i></span></span></span><span class="z"><span class="h">考</span><span class="b"><span>ㄎ</span><span>ㄠ<i class="zt">ˇ</i></span></span></span><span class="z"><span class="h">卷</span><span class="b"><span>ㄐ</span><span>ㄩ</span><span>ㄢ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">一</span><span class="b"><span>ㄧ</span></span></span><span class="z"><span class="h">樣</span><span class="b"><span>ㄧ</span><span>ㄤ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">的</span><span class="b"><span class="l">˙</span><span>ㄉ</span><span>ㄜ</span></span></span><span class="z"><span class="h">題</span><span class="b"><span>ㄊ</span><span>ㄧ<i class="zt">ˊ</i></span></span></span><span class="z"><span class="h">型</span><span class="b"><span>ㄒ</span><span>ㄧ</span><span>ㄥ<i class="zt">ˊ</i></span></span></span>：<span class="z"><span class="h">看</span><span class="b"><span>ㄎ</span><span>ㄢ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">圖</span><span class="b"><span>ㄊ</span><span>ㄨ<i class="zt">ˊ</i></span></span></span><span class="z"><span class="h">寫</span><span class="b"><span>ㄒ</span><span>ㄧ</span><span>ㄝ<i class="zt">ˇ</i></span></span></span><span class="z"><span class="h">算</span><span class="b"><span>ㄙ</span><span>ㄨ</span><span>ㄢ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">式</span><span class="b"><span>ㄕ<i class="zt">ˋ</i></span></span></span>、<span class="z"><span class="h">幾</span><span class="b"><span>ㄐ</span><span>ㄧ<i class="zt">ˇ</i></span></span></span><span class="z"><span class="h">的</span><span class="b"><span class="l">˙</span><span>ㄉ</span><span>ㄜ</span></span></span><span class="z"><span class="h">幾</span><span class="b"><span>ㄐ</span><span>ㄧ<i class="zt">ˇ</i></span></span></span><span class="z"><span class="h">倍</span><span class="b"><span>ㄅ</span><span>ㄟ<i class="zt">ˋ</i></span></span></span>、□ <span class="z"><span class="h">裡</span><span class="b"><span>ㄌ</span><span>ㄧ<i class="zt">ˇ</i></span></span></span><span class="z"><span class="h">填</span><span class="b"><span>ㄊ</span><span>ㄧ</span><span>ㄢ<i class="zt">ˊ</i></span></span></span><span class="z"><span class="h">數</span><span class="b"><span>ㄕ</span><span>ㄨ<i class="zt">ˋ</i></span></span></span>、<span class="z"><span class="h">比</span><span class="b"><span>ㄅ</span><span>ㄧ<i class="zt">ˇ</i></span></span></span><span class="z"><span class="h">大</span><span class="b"><span>ㄉ</span><span>ㄚ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">小</span><span class="b"><span>ㄒ</span><span>ㄧ</span><span>ㄠ<i class="zt">ˇ</i></span></span></span>、<span class="z"><span class="h">找</span><span class="b"><span>ㄓ</span><span>ㄠ<i class="zt">ˇ</i></span></span></span><span class="z"><span class="h">規</span><span class="b"><span>ㄍ</span><span>ㄨ</span><span>ㄟ</span></span></span><span class="z"><span class="h">律</span><span class="b"><span>ㄌ</span><span>ㄩ<i class="zt">ˋ</i></span></span></span>、<span class="z"><span class="h">應</span><span class="b"><span>ㄧ</span><span>ㄥ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">用</span><span class="b"><span>ㄩ</span><span>ㄥ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">題</span><span class="b"><span>ㄊ</span><span>ㄧ<i class="zt">ˊ</i></span></span></span>。<span class="z"><span class="h">一</span><span class="b"><span>ㄧ</span></span></span><span class="z"><span class="h">次</span><span class="b"><span>ㄘ<i class="zt">ˋ</i></span></span></span> 8 <span class="z"><span class="h">題</span><span class="b"><span>ㄊ</span><span>ㄧ<i class="zt">ˊ</i></span></span></span>。</p>
+<button class="btn o" data-eset="2,5,4,8"><span class="z"><span class="h">第</span><span class="b"><span>ㄉ</span><span>ㄧ<i class="zt">ˋ</i></span></span></span> 7 <span class="z"><span class="h">單</span><span class="b"><span>ㄉ</span><span>ㄢ</span></span></span><span class="z"><span class="h">元</span><span class="b"><span>ㄩ</span><span>ㄢ<i class="zt">ˊ</i></span></span></span></button>
+<button class="btn g" data-eset="3,6,7,9"><span class="z"><span class="h">第</span><span class="b"><span>ㄉ</span><span>ㄧ<i class="zt">ˋ</i></span></span></span> 9 <span class="z"><span class="h">單</span><span class="b"><span>ㄉ</span><span>ㄢ</span></span></span><span class="z"><span class="h">元</span><span class="b"><span>ㄩ</span><span>ㄢ<i class="zt">ˊ</i></span></span></span></button>
+<button class="btn" data-eset="2,3,4,5,6,7,8,9"><span class="z"><span class="h">全</span><span class="b"><span>ㄑ</span><span>ㄩ</span><span>ㄢ<i class="zt">ˊ</i></span></span></span><span class="z"><span class="h">部</span><span class="b"><span>ㄅ</span><span>ㄨ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">一</span><span class="b"><span>ㄧ</span></span></span><span class="z"><span class="h">起</span><span class="b"><span>ㄑ</span><span>ㄧ<i class="zt">ˇ</i></span></span></span><span class="z"><span class="h">來</span><span class="b"><span>ㄌ</span><span>ㄞ<i class="zt">ˊ</i></span></span></span></button>
+</div>
+<div class="panel qbox" id="examPlay" style="display:none">
+<div class="prog"><i id="eProg"></i></div>
+<div class="muted" id="eCount"></div>
+<div id="eQ"></div>
+<div class="fb" id="eFb"></div>
+<div id="eNext" style="display:none"><button class="btn g" id="eNextBtn"><span class="z"><span class="h">下</span><span class="b"><span>ㄒ</span><span>ㄧ</span><span>ㄚ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">一</span><span class="b"><span>ㄧ</span></span></span><span class="z"><span class="h">題</span><span class="b"><span>ㄊ</span><span>ㄧ<i class="zt">ˊ</i></span></span></span></button></div>
+</div>
+<div class="panel result" id="examEnd" style="display:none"></div>
+</section>
+<!-- 我的星星 -->
+<section class="view" id="v-me">
+<div class="panel">
+<h2><span class="z"><span class="h">我</span><span class="b"><span>ㄨ</span><span>ㄛ<i class="zt">ˇ</i></span></span></span><span class="z"><span class="h">的</span><span class="b"><span class="l">˙</span><span>ㄉ</span><span>ㄜ</span></span></span><span class="z"><span class="h">星</span><span class="b"><span>ㄒ</span><span>ㄧ</span><span>ㄥ</span></span></span><span class="z"><span class="h">星</span><span class="b"><span>ㄒ</span><span>ㄧ</span><span>ㄥ</span></span></span></h2>
+<div id="meSum"></div>
+</div>
+<div class="panel">
+<h2><span class="z"><span class="h">熟</span><span class="b"><span>ㄕ</span><span>ㄡ<i class="zt">ˊ</i></span></span></span><span class="z"><span class="h">練</span><span class="b"><span>ㄌ</span><span>ㄧ</span><span>ㄢ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">地</span><span class="b"><span>ㄉ</span><span>ㄧ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">圖</span><span class="b"><span>ㄊ</span><span>ㄨ<i class="zt">ˊ</i></span></span></span></h2>
+<p class="muted"><span class="z"><span class="h">淺</span><span class="b"><span>ㄑ</span><span>ㄧ</span><span>ㄢ<i class="zt">ˇ</i></span></span></span><span class="z"><span class="h">綠</span><span class="b"><span>ㄌ</span><span>ㄩ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">色</span><span class="b"><span>ㄙ</span><span>ㄜ<i class="zt">ˋ</i></span></span></span>：<span class="z"><span class="h">答</span><span class="b"><span>ㄉ</span><span>ㄚ<i class="zt">ˊ</i></span></span></span><span class="z"><span class="h">對</span><span class="b"><span>ㄉ</span><span>ㄨ</span><span>ㄟ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">過</span><span class="b"><span>ㄍ</span><span>ㄨ</span><span>ㄛ<i class="zt">ˋ</i></span></span></span> 1 <span class="z"><span class="h">次</span><span class="b"><span>ㄘ<i class="zt">ˋ</i></span></span></span>。<span class="z"><span class="h">深</span><span class="b"><span>ㄕ</span><span>ㄣ</span></span></span><span class="z"><span class="h">綠</span><span class="b"><span>ㄌ</span><span>ㄩ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">色</span><span class="b"><span>ㄙ</span><span>ㄜ<i class="zt">ˋ</i></span></span></span>：<span class="z"><span class="h">答</span><span class="b"><span>ㄉ</span><span>ㄚ<i class="zt">ˊ</i></span></span></span><span class="z"><span class="h">對</span><span class="b"><span>ㄉ</span><span>ㄨ</span><span>ㄟ<i class="zt">ˋ</i></span></span></span> 3 <span class="z"><span class="h">次</span><span class="b"><span>ㄘ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">以</span><span class="b"><span>ㄧ<i class="zt">ˇ</i></span></span></span><span class="z"><span class="h">上</span><span class="b"><span>ㄕ</span><span>ㄤ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">而</span><span class="b"><span>ㄦ<i class="zt">ˊ</i></span></span></span><span class="z"><span class="h">且</span><span class="b"><span>ㄑ</span><span>ㄧ</span><span>ㄝ<i class="zt">ˇ</i></span></span></span><span class="z"><span class="h">最</span><span class="b"><span>ㄗ</span><span>ㄨ</span><span>ㄟ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">近</span><span class="b"><span>ㄐ</span><span>ㄧ</span><span>ㄣ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">沒</span><span class="b"><span>ㄇ</span><span>ㄟ<i class="zt">ˊ</i></span></span></span><span class="z"><span class="h">有</span><span class="b"><span>ㄧ</span><span>ㄡ<i class="zt">ˇ</i></span></span></span><span class="z"><span class="h">錯</span><span class="b"><span>ㄘ</span><span>ㄨ</span><span>ㄛ<i class="zt">ˋ</i></span></span></span>。</p>
+<table class="map nz" id="meMap"></table>
+</div>
+<div class="panel">
+<h2><span class="z"><span class="h">錯</span><span class="b"><span>ㄘ</span><span>ㄨ</span><span>ㄛ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">題</span><span class="b"><span>ㄊ</span><span>ㄧ<i class="zt">ˊ</i></span></span></span><span class="z"><span class="h">本</span><span class="b"><span>ㄅ</span><span>ㄣ<i class="zt">ˇ</i></span></span></span></h2>
+<div class="wrongs" id="meWrong"></div>
+<p><button class="btn r" id="meWrongGo"><span class="z"><span class="h">練</span><span class="b"><span>ㄌ</span><span>ㄧ</span><span>ㄢ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">習</span><span class="b"><span>ㄒ</span><span>ㄧ<i class="zt">ˊ</i></span></span></span><span class="z"><span class="h">錯</span><span class="b"><span>ㄘ</span><span>ㄨ</span><span>ㄛ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">題</span><span class="b"><span>ㄊ</span><span>ㄧ<i class="zt">ˊ</i></span></span></span></button> <button class="btn w" id="meReset"><span class="z"><span class="h">全</span><span class="b"><span>ㄑ</span><span>ㄩ</span><span>ㄢ<i class="zt">ˊ</i></span></span></span><span class="z"><span class="h">部</span><span class="b"><span>ㄅ</span><span>ㄨ<i class="zt">ˋ</i></span></span></span><span class="z"><span class="h">清</span><span class="b"><span>ㄑ</span><span>ㄧ</span><span>ㄥ</span></span></span><span class="z"><span class="h">除</span><span class="b"><span>ㄔ</span><span>ㄨ<i class="zt">ˊ</i></span></span></span><span class="z"><span class="h">重</span><span class="b"><span>ㄔ</span><span>ㄨ</span><span>ㄥ<i class="zt">ˊ</i></span></span></span><span class="z"><span class="h">來</span><span class="b"><span>ㄌ</span><span>ㄞ<i class="zt">ˊ</i></span></span></span></button></p>
+</div>
+</section>
+</main><script>
+var ZY={"7的乘法你早就會一大半了！交換一下就是學過的句子，只有7×7=49是新的。": [null, "ㄉㄜ˙", "ㄔㄥˊ", "ㄈㄚˇ", "ㄋㄧˇ", "ㄗㄠˇ", "ㄐㄧㄡˋ", "ㄏㄨㄟˋ", "ㄧ", "ㄉㄚˋ", "ㄅㄢˋ", "ㄌㄜ˙", null, "ㄐㄧㄠ", "ㄏㄨㄢˋ", "ㄧ", "ㄒㄧㄚˋ", "ㄐㄧㄡˋ", "ㄕˋ", "ㄒㄩㄝˊ", "ㄍㄨㄛˋ", "ㄉㄜ˙", "ㄐㄩˋ", "ㄗ˙", null, "ㄓˇ", "ㄧㄡˇ", null, null, null, null, null, null, "ㄕˋ", "ㄒㄧㄣ", "ㄉㄜ˙", null], "8題答對{ok}題": [null, "ㄊㄧˊ", "ㄉㄚˊ", "ㄉㄨㄟˋ", null, null, null, null, "ㄊㄧˊ"], "{a}的{b}倍就是{x}": [null, null, null, "ㄉㄜ˙", null, null, null, "ㄅㄟˋ", "ㄐㄧㄡˋ", "ㄕˋ", null, null, null], "{a}的{b}倍是{p}": [null, null, null, "ㄉㄜ˙", null, null, null, "ㄅㄟˋ", "ㄕˋ", null, null, null], "{a}的{b}倍是多少？": [null, null, null, "ㄉㄜ˙", null, null, null, "ㄅㄟˋ", "ㄕˋ", "ㄉㄨㄛ", "ㄕㄠˇ", null], "{n}的乘法": [null, null, null, "ㄉㄜ˙", "ㄔㄥˊ", "ㄈㄚˇ"], "{n}的口訣練完了！得到1顆星星": [null, null, null, "ㄉㄜ˙", "ㄎㄡˇ", "ㄐㄩㄝˊ", "ㄌㄧㄢˋ", "ㄨㄢˊ", "ㄌㄜ˙", null, "ㄉㄜˊ", "ㄉㄠˋ", null, "ㄎㄜ", "ㄒㄧㄥ", "ㄒㄧㄥ"], "□ 裡是多少？": [null, null, "ㄌㄧˇ", "ㄕˋ", "ㄉㄨㄛ", "ㄕㄠˇ", null], "□ 裡要填多少？": [null, null, "ㄌㄧˇ", "ㄧㄠˋ", "ㄊㄧㄢˊ", "ㄉㄨㄛ", "ㄕㄠˇ", null], "○ 裡要填哪一個？": [null, null, "ㄌㄧˇ", "ㄧㄠˋ", "ㄊㄧㄢˊ", "ㄋㄚˇ", "ㄧ", "ㄍㄜˋ", null], "一一得一": ["ㄧ", "ㄧ", "ㄉㄜˊ", "ㄧ"], "一七得七": ["ㄧ", "ㄑㄧ", "ㄉㄜˊ", "ㄑㄧ"], "一三得三": ["ㄧ", "ㄙㄢ", "ㄉㄜˊ", "ㄙㄢ"], "一九得九": ["ㄧ", "ㄐㄧㄡˇ", "ㄉㄜˊ", "ㄐㄧㄡˇ"], "一二得二": ["ㄧ", "ㄦˋ", "ㄉㄜˊ", "ㄦˋ"], "一五得五": ["ㄧ", "ㄨˇ", "ㄉㄜˊ", "ㄨˇ"], "一八得八": ["ㄧ", "ㄅㄚ", "ㄉㄜˊ", "ㄅㄚ"], "一六得六": ["ㄧ", "ㄌㄧㄡˋ", "ㄉㄜˊ", "ㄌㄧㄡˋ"], "一十": ["ㄧ", "ㄕˊ"], "一四得四": ["ㄧ", "ㄙˋ", "ㄉㄜˊ", "ㄙˋ"], "一枝鉛筆{a}元，買{b}枝要付多少元？": ["ㄧ", "ㄓ", "ㄑㄧㄢ", "ㄅㄧˇ", null, null, null, "ㄩㄢˊ", null, "ㄇㄞˇ", null, null, null, "ㄓ", "ㄧㄠˋ", "ㄈㄨˋ", "ㄉㄨㄛ", "ㄕㄠˇ", "ㄩㄢˊ", null], "一次多{a}": ["ㄧ", "ㄘˋ", "ㄉㄨㄛ", null, null, null], "一盒有{a}顆糖果，{b}盒一共有幾顆？": ["ㄧ", "ㄏㄜˊ", "ㄧㄡˇ", null, null, null, "ㄎㄜ", "ㄊㄤˊ", "ㄍㄨㄛˇ", null, null, null, null, "ㄏㄜˊ", "ㄧ", "ㄍㄨㄥˋ", "ㄧㄡˇ", "ㄐㄧˇ", "ㄎㄜ", null], "一隻小狗有4隻腳，{b}隻小狗一共有幾隻腳？": ["ㄧ", "ㄓ", "ㄒㄧㄠˇ", "ㄍㄡˇ", "ㄧㄡˇ", null, "ㄓ", "ㄐㄧㄠˇ", null, null, null, null, "ㄓ", "ㄒㄧㄠˇ", "ㄍㄡˇ", "ㄧ", "ㄍㄨㄥˋ", "ㄧㄡˇ", "ㄐㄧˇ", "ㄓ", "ㄐㄧㄠˇ", null], "一隻章魚有8隻腳，{b}隻章魚一共有幾隻腳？": ["ㄧ", "ㄓ", "ㄓㄤ", "ㄩˊ", "ㄧㄡˇ", null, "ㄓ", "ㄐㄧㄠˇ", null, null, null, null, "ㄓ", "ㄓㄤ", "ㄩˊ", "ㄧ", "ㄍㄨㄥˋ", "ㄧㄡˇ", "ㄐㄧˇ", "ㄓ", "ㄐㄧㄠˇ", null], "七一得七": ["ㄑㄧ", "ㄧ", "ㄉㄜˊ", "ㄑㄧ"], "七七四十九": ["ㄑㄧ", "ㄑㄧ", "ㄙˋ", "ㄕˊ", "ㄐㄧㄡˇ"], "七七四十九：7個星期就是49天。": ["ㄑㄧ", "ㄑㄧ", "ㄙˋ", "ㄕˊ", "ㄐㄧㄡˇ", null, null, "ㄍㄜˋ", "ㄒㄧㄥ", "ㄑㄧˊ", "ㄐㄧㄡˋ", "ㄕˋ", null, null, "ㄊㄧㄢ", null], "七三二十一": ["ㄑㄧ", "ㄙㄢ", "ㄦˋ", "ㄕˊ", "ㄧ"], "七九六十三": ["ㄑㄧ", "ㄐㄧㄡˇ", "ㄌㄧㄡˋ", "ㄕˊ", "ㄙㄢ"], "七二十四": ["ㄑㄧ", "ㄦˋ", "ㄕˊ", "ㄙˋ"], "七五三十五": ["ㄑㄧ", "ㄨˇ", "ㄙㄢ", "ㄕˊ", "ㄨˇ"], "七八五十六": ["ㄑㄧ", "ㄅㄚ", "ㄨˇ", "ㄕˊ", "ㄌㄧㄡˋ"], "七八五十六：5、6、7、8排好隊，56=7×8。": ["ㄑㄧ", "ㄅㄚ", "ㄨˇ", "ㄕˊ", "ㄌㄧㄡˋ", null, null, null, null, null, null, null, null, "ㄆㄞˊ", "ㄏㄠˇ", "ㄉㄨㄟˋ", null, null, null, null, null, null, null, null], "七六四十二": ["ㄑㄧ", "ㄌㄧㄡˋ", "ㄙˋ", "ㄕˊ", "ㄦˋ"], "七四二十八": ["ㄑㄧ", "ㄙˋ", "ㄦˋ", "ㄕˊ", "ㄅㄚ"], "三一得三": ["ㄙㄢ", "ㄧ", "ㄉㄜˊ", "ㄙㄢ"], "三七二十一": ["ㄙㄢ", "ㄑㄧ", "ㄦˋ", "ㄕˊ", "ㄧ"], "三三得九": ["ㄙㄢ", "ㄙㄢ", "ㄉㄜˊ", "ㄐㄧㄡˇ"], "三九二十七": ["ㄙㄢ", "ㄐㄧㄡˇ", "ㄦˋ", "ㄕˊ", "ㄑㄧ"], "三二得六": ["ㄙㄢ", "ㄦˋ", "ㄉㄜˊ", "ㄌㄧㄡˋ"], "三五十五": ["ㄙㄢ", "ㄨˇ", "ㄕˊ", "ㄨˇ"], "三八二十四": ["ㄙㄢ", "ㄅㄚ", "ㄦˋ", "ㄕˊ", "ㄙˋ"], "三六十八": ["ㄙㄢ", "ㄌㄧㄡˋ", "ㄕˊ", "ㄅㄚ"], "三四十二": ["ㄙㄢ", "ㄙˋ", "ㄕˊ", "ㄦˋ"], "不對喔，再看一次：": ["ㄅㄨˋ", "ㄉㄨㄟˋ", "ㄛ", null, "ㄗㄞˋ", "ㄎㄢˋ", "ㄧ", "ㄘˋ", null], "九一得九": ["ㄐㄧㄡˇ", "ㄧ", "ㄉㄜˊ", "ㄐㄧㄡˇ"], "九七六十三": ["ㄐㄧㄡˇ", "ㄑㄧ", "ㄌㄧㄡˋ", "ㄕˊ", "ㄙㄢ"], "九三二十七": ["ㄐㄧㄡˇ", "ㄙㄢ", "ㄦˋ", "ㄕˊ", "ㄑㄧ"], "九九八十一": ["ㄐㄧㄡˇ", "ㄐㄧㄡˇ", "ㄅㄚ", "ㄕˊ", "ㄧ"], "九二十八": ["ㄐㄧㄡˇ", "ㄦˋ", "ㄕˊ", "ㄅㄚ"], "九五四十五": ["ㄐㄧㄡˇ", "ㄨˇ", "ㄙˋ", "ㄕˊ", "ㄨˇ"], "九八七十二": ["ㄐㄧㄡˇ", "ㄅㄚ", "ㄑㄧ", "ㄕˊ", "ㄦˋ"], "九六五十四": ["ㄐㄧㄡˇ", "ㄌㄧㄡˋ", "ㄨˇ", "ㄕˊ", "ㄙˋ"], "九四三十六": ["ㄐㄧㄡˇ", "ㄙˋ", "ㄙㄢ", "ㄕˊ", "ㄌㄧㄡˋ"], "二一得二": ["ㄦˋ", "ㄧ", "ㄉㄜˊ", "ㄦˋ"], "二七十四": ["ㄦˋ", "ㄑㄧ", "ㄕˊ", "ㄙˋ"], "二三得六": ["ㄦˋ", "ㄙㄢ", "ㄉㄜˊ", "ㄌㄧㄡˋ"], "二九十八": ["ㄦˋ", "ㄐㄧㄡˇ", "ㄕˊ", "ㄅㄚ"], "二二得四": ["ㄦˋ", "ㄦˋ", "ㄉㄜˊ", "ㄙˋ"], "二五一十": ["ㄦˋ", "ㄨˇ", "ㄧ", "ㄕˊ"], "二八十六": ["ㄦˋ", "ㄅㄚ", "ㄕˊ", "ㄌㄧㄡˋ"], "二六十二": ["ㄦˋ", "ㄌㄧㄡˋ", "ㄕˊ", "ㄦˋ"], "二四得八": ["ㄦˋ", "ㄙˋ", "ㄉㄜˊ", "ㄅㄚ"], "五一得五": ["ㄨˇ", "ㄧ", "ㄉㄜˊ", "ㄨˇ"], "五七三十五": ["ㄨˇ", "ㄑㄧ", "ㄙㄢ", "ㄕˊ", "ㄨˇ"], "五三十五": ["ㄨˇ", "ㄙㄢ", "ㄕˊ", "ㄨˇ"], "五九四十五": ["ㄨˇ", "ㄐㄧㄡˇ", "ㄙˋ", "ㄕˊ", "ㄨˇ"], "五二一十": ["ㄨˇ", "ㄦˋ", "ㄧ", "ㄕˊ"], "五五二十五": ["ㄨˇ", "ㄨˇ", "ㄦˋ", "ㄕˊ", "ㄨˇ"], "五八四十": ["ㄨˇ", "ㄅㄚ", "ㄙˋ", "ㄕˊ"], "五六三十": ["ㄨˇ", "ㄌㄧㄡˋ", "ㄙㄢ", "ㄕˊ"], "五四二十": ["ㄨˇ", "ㄙˋ", "ㄦˋ", "ㄕˊ"], "交換也一樣：{x}，答案還是{p}": ["ㄐㄧㄠ", "ㄏㄨㄢˋ", "ㄧㄝˇ", "ㄧ", "ㄧㄤˋ", null, null, null, null, null, "ㄉㄚˊ", "ㄢˋ", "ㄏㄞˊ", "ㄕˋ", null, null, null], "人": ["ㄖㄣˊ"], "個": ["ㄍㄜˋ"], "元": ["ㄩㄢˊ"], "先找「每」一份有幾個：{x}": ["ㄒㄧㄢ", "ㄓㄠˇ", null, "ㄇㄟˇ", null, "ㄧ", "ㄈㄣˋ", "ㄧㄡˇ", "ㄐㄧˇ", "ㄍㄜˋ", null, null, null, null], "全部清除重來": ["ㄑㄩㄢˊ", "ㄅㄨˋ", "ㄑㄧㄥ", "ㄔㄨˊ", "ㄔㄨㄥˊ", "ㄌㄞˊ"], "全部答對，你是乘法魔法師！": ["ㄑㄩㄢˊ", "ㄅㄨˋ", "ㄉㄚˊ", "ㄉㄨㄟˋ", null, "ㄋㄧˇ", "ㄕˋ", "ㄔㄥˊ", "ㄈㄚˇ", "ㄇㄛˊ", "ㄈㄚˇ", "ㄕ", null], "八一得八": ["ㄅㄚ", "ㄧ", "ㄉㄜˊ", "ㄅㄚ"], "八七五十六": ["ㄅㄚ", "ㄑㄧ", "ㄨˇ", "ㄕˊ", "ㄌㄧㄡˋ"], "八三二十四": ["ㄅㄚ", "ㄙㄢ", "ㄦˋ", "ㄕˊ", "ㄙˋ"], "八九七十二": ["ㄅㄚ", "ㄐㄧㄡˇ", "ㄑㄧ", "ㄕˊ", "ㄦˋ"], "八二十六": ["ㄅㄚ", "ㄦˋ", "ㄕˊ", "ㄌㄧㄡˋ"], "八五四十": ["ㄅㄚ", "ㄨˇ", "ㄙˋ", "ㄕˊ"], "八八六十四": ["ㄅㄚ", "ㄅㄚ", "ㄌㄧㄡˋ", "ㄕˊ", "ㄙˋ"], "八六四十八": ["ㄅㄚ", "ㄌㄧㄡˋ", "ㄙˋ", "ㄕˊ", "ㄅㄚ"], "八四三十二": ["ㄅㄚ", "ㄙˋ", "ㄙㄢ", "ㄕˊ", "ㄦˋ"], "六一得六": ["ㄌㄧㄡˋ", "ㄧ", "ㄉㄜˊ", "ㄌㄧㄡˋ"], "六七四十二": ["ㄌㄧㄡˋ", "ㄑㄧ", "ㄙˋ", "ㄕˊ", "ㄦˋ"], "六三十八": ["ㄌㄧㄡˋ", "ㄙㄢ", "ㄕˊ", "ㄅㄚ"], "六九五十四": ["ㄌㄧㄡˋ", "ㄐㄧㄡˇ", "ㄨˇ", "ㄕˊ", "ㄙˋ"], "六二十二": ["ㄌㄧㄡˋ", "ㄦˋ", "ㄕˊ", "ㄦˋ"], "六五三十": ["ㄌㄧㄡˋ", "ㄨˇ", "ㄙㄢ", "ㄕˊ"], "六八四十八": ["ㄌㄧㄡˋ", "ㄅㄚ", "ㄙˋ", "ㄕˊ", "ㄅㄚ"], "六六三十六": ["ㄌㄧㄡˋ", "ㄌㄧㄡˋ", "ㄙㄢ", "ㄕˊ", "ㄌㄧㄡˋ"], "六四二十四": ["ㄌㄧㄡˋ", "ㄙˋ", "ㄦˋ", "ㄕˊ", "ㄙˋ"], "再想想，答案是{p}": ["ㄗㄞˋ", "ㄒㄧㄤˇ", "ㄒㄧㄤ˙", null, "ㄉㄚˊ", "ㄢˋ", "ㄕˋ", null, null, null], "再玩一次": ["ㄗㄞˋ", "ㄨㄢˊ", "ㄧ", "ㄘˋ"], "再翻一倍：8是4的兩倍。答案的最後一個數字是8、6、4、2、0，一直重複。": ["ㄗㄞˋ", "ㄈㄢ", "ㄧˊ", "ㄅㄟˋ", null, null, "ㄕˋ", null, "ㄉㄜ˙", "ㄌㄧㄤˇ", "ㄅㄟˋ", null, "ㄉㄚˊ", "ㄢˋ", "ㄉㄜ˙", "ㄗㄨㄟˋ", "ㄏㄡˋ", "ㄧ", "ㄍㄜˋ", "ㄕㄨˋ", "ㄗˋ", "ㄕˋ", null, null, null, null, null, null, null, null, null, null, "ㄧˋ", "ㄓˊ", "ㄔㄨㄥˊ", "ㄈㄨˋ", null], "十": ["ㄕˊ"], "四一得四": ["ㄙˋ", "ㄧ", "ㄉㄜˊ", "ㄙˋ"], "四七二十八": ["ㄙˋ", "ㄑㄧ", "ㄦˋ", "ㄕˊ", "ㄅㄚ"], "四三十二": ["ㄙˋ", "ㄙㄢ", "ㄕˊ", "ㄦˋ"], "四九三十六": ["ㄙˋ", "ㄐㄧㄡˇ", "ㄙㄢ", "ㄕˊ", "ㄌㄧㄡˋ"], "四二得八": ["ㄙˋ", "ㄦˋ", "ㄉㄜˊ", "ㄅㄚ"], "四五二十": ["ㄙˋ", "ㄨˇ", "ㄦˋ", "ㄕˊ"], "四八三十二": ["ㄙˋ", "ㄅㄚ", "ㄙㄢ", "ㄕˊ", "ㄦˋ"], "四六二十四": ["ㄙˋ", "ㄌㄧㄡˋ", "ㄦˋ", "ㄕˊ", "ㄙˋ"], "四四十六": ["ㄙˋ", "ㄙˋ", "ㄕˊ", "ㄌㄧㄡˋ"], "媽媽買了{b}袋蘋果，每袋有{a}個。一共有幾個蘋果？": ["ㄇㄚ", "ㄇㄚ˙", "ㄇㄞˇ", "ㄌㄜ˙", null, null, null, "ㄉㄞˋ", "ㄆㄧㄥˊ", "ㄍㄨㄛˇ", null, "ㄇㄟˇ", "ㄉㄞˋ", "ㄧㄡˇ", null, null, null, "ㄍㄜˋ", null, "ㄧ", "ㄍㄨㄥˋ", "ㄧㄡˇ", "ㄐㄧˇ", "ㄍㄜˋ", "ㄆㄧㄥˊ", "ㄍㄨㄛˇ", null], "左邊有{l}根，右邊有{r}根": ["ㄗㄨㄛˇ", "ㄅㄧㄢ", "ㄧㄡˇ", null, null, null, "ㄍㄣ", null, "ㄧㄡˋ", "ㄅㄧㄢ", "ㄧㄡˇ", null, null, null, "ㄍㄣ"], "已經很熟的有{n}句，共81句": ["ㄧˇ", "ㄐㄧㄥ", "ㄏㄣˇ", "ㄕㄡˊ", "ㄉㄜ˙", "ㄧㄡˇ", null, null, null, "ㄐㄩˋ", null, "ㄍㄨㄥˋ", null, null, "ㄐㄩˋ"], "張": ["ㄓㄤ"], "得": ["ㄉㄜˊ"], "念給我聽": ["ㄋㄧㄢˋ", "ㄍㄟˇ", "ㄨㄛˇ", "ㄊㄧㄥ"], "想一想口訣：": ["ㄒㄧㄤˇ", "ㄧ", "ㄒㄧㄤˇ", "ㄎㄡˇ", "ㄐㄩㄝˊ", null], "手指頭魔法：點一根手指把它彎下去，左邊是十位，右邊是個位。": ["ㄕㄡˇ", "ㄓˇ", "ㄊㄡ˙", "ㄇㄛˊ", "ㄈㄚˇ", null, "ㄉㄧㄢˇ", "ㄧ", "ㄍㄣ", "ㄕㄡˇ", "ㄓˇ", "ㄅㄚˇ", "ㄊㄚ", "ㄨㄢ", "ㄒㄧㄚˋ", "ㄑㄩˋ", null, "ㄗㄨㄛˇ", "ㄅㄧㄢ", "ㄕˋ", "ㄕˊ", "ㄨㄟˋ", null, "ㄧㄡˋ", "ㄅㄧㄢ", "ㄕˋ", "ㄍㄜˋ", "ㄨㄟˋ", null], "數字鍵盤：答案的最後一個數字是3、6、9，2、5、8，1、4、7。": ["ㄕㄨˋ", "ㄗˋ", "ㄐㄧㄢˋ", "ㄆㄢˊ", null, "ㄉㄚˊ", "ㄢˋ", "ㄉㄜ˙", "ㄗㄨㄟˋ", "ㄏㄡˋ", "ㄧ", "ㄍㄜˋ", "ㄕㄨˋ", "ㄗˋ", "ㄕˋ", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null], "每一份{a}個 × {b}份，寫成{x}": ["ㄇㄟˇ", "ㄧ", "ㄈㄣˋ", null, null, null, "ㄍㄜˋ", null, null, null, null, null, null, "ㄈㄣˋ", null, "ㄒㄧㄝˇ", "ㄔㄥˊ", null, null, null], "每個小朋友有{a}張貼紙，{b}個小朋友一共有幾張？": ["ㄇㄟˇ", "ㄍㄜˋ", "ㄒㄧㄠˇ", "ㄆㄥˊ", "ㄧㄡˇ", "ㄧㄡˇ", null, null, null, "ㄓㄤ", "ㄊㄧㄝ", "ㄓˇ", null, null, null, null, "ㄍㄜˋ", "ㄒㄧㄠˇ", "ㄆㄥˊ", "ㄧㄡˇ", "ㄧ", "ㄍㄨㄥˋ", "ㄧㄡˇ", "ㄐㄧˇ", "ㄓㄤ", null], "每盤有{a}個，有{b}盤": ["ㄇㄟˇ", "ㄆㄢˊ", "ㄧㄡˇ", null, null, null, "ㄍㄜˋ", null, "ㄧㄡˇ", null, null, null, "ㄆㄢˊ"], "每盤有{a}個，有{b}盤。乘法算式是哪一個？": ["ㄇㄟˇ", "ㄆㄢˊ", "ㄧㄡˇ", null, null, null, "ㄍㄜˋ", null, "ㄧㄡˇ", null, null, null, "ㄆㄢˊ", null, "ㄔㄥˊ", "ㄈㄚˇ", "ㄙㄨㄢˋ", "ㄕˋ", "ㄕˋ", "ㄋㄚˇ", "ㄧ", "ㄍㄜˋ", null], "每輛車坐{a}個人，{b}輛車可以坐幾個人？": ["ㄇㄟˇ", "ㄌㄧㄤˋ", "ㄔㄜ", "ㄗㄨㄛˋ", null, null, null, "ㄍㄜˋ", "ㄖㄣˊ", null, null, null, null, "ㄌㄧㄤˋ", "ㄔㄜ", "ㄎㄜˇ", "ㄧˇ", "ㄗㄨㄛˋ", "ㄐㄧˇ", "ㄍㄜˋ", "ㄖㄣˊ", null], "注音：開": ["ㄓㄨˋ", "ㄧㄣ", null, "ㄎㄞ"], "注音：關": ["ㄓㄨˋ", "ㄧㄣ", null, "ㄍㄨㄢ"], "看時鐘：分針走1大格是5分。答案的最後一個數字，不是5就是0。": ["ㄎㄢˋ", "ㄕˊ", "ㄓㄨㄥ", null, "ㄈㄣ", "ㄓㄣ", "ㄗㄡˇ", null, "ㄉㄚˋ", "ㄍㄜˊ", "ㄕˋ", null, "ㄈㄣ", null, "ㄉㄚˊ", "ㄢˋ", "ㄉㄜ˙", "ㄗㄨㄟˋ", "ㄏㄡˋ", "ㄧ", "ㄍㄜˋ", "ㄕㄨˋ", "ㄗˋ", null, "ㄅㄨˊ", "ㄕˋ", null, "ㄐㄧㄡˋ", "ㄕˋ", null, null], "真的要清除嗎？再按一次": ["ㄓㄣ", "ㄉㄜ˙", "ㄧㄠˋ", "ㄑㄧㄥ", "ㄔㄨˊ", "ㄇㄚ˙", null, "ㄗㄞˋ", "ㄢˋ", "ㄧ", "ㄘˋ"], "確定": ["ㄑㄩㄝˋ", "ㄉㄧㄥˋ"], "第{i}張，共{n}張": ["ㄉㄧˋ", null, null, null, "ㄓㄤ", null, "ㄍㄨㄥˋ", null, null, null, "ㄓㄤ"], "第{i}題，共{n}題": ["ㄉㄧˋ", null, null, null, "ㄊㄧˊ", null, "ㄍㄨㄥˋ", null, null, null, "ㄊㄧˊ"], "答對{ok}題，花了{s}秒": ["ㄉㄚˊ", "ㄉㄨㄟˋ", null, null, null, null, "ㄊㄧˊ", null, "ㄏㄨㄚ", "ㄌㄜ˙", null, null, null, "ㄇㄧㄠˇ"], "答對了！": ["ㄉㄚˊ", "ㄉㄨㄟˋ", "ㄌㄜ˙", null], "答案是{p}": ["ㄉㄚˊ", "ㄢˋ", "ㄕˋ", null, null, null], "紅色的數字就是5的乘法答案！": ["ㄏㄨㄥˊ", "ㄙㄜˋ", "ㄉㄜ˙", "ㄕㄨˋ", "ㄗˋ", "ㄐㄧㄡˋ", "ㄕˋ", null, "ㄉㄜ˙", "ㄔㄥˊ", "ㄈㄚˇ", "ㄉㄚˊ", "ㄢˋ", null], "翻一倍：4是2的兩倍。先想2的答案，再加一次自己。": ["ㄈㄢ", "ㄧˊ", "ㄅㄟˋ", null, null, "ㄕˋ", null, "ㄉㄜ˙", "ㄌㄧㄤˇ", "ㄅㄟˋ", null, "ㄒㄧㄢ", "ㄒㄧㄤˇ", null, "ㄉㄜ˙", "ㄉㄚˊ", "ㄢˋ", null, "ㄗㄞˋ", "ㄐㄧㄚ", "ㄧ", "ㄘˋ", "ㄗˋ", "ㄐㄧˇ", null], "翻一倍：6是3的兩倍。6乘雙數，答案的尾巴和乘數一樣。": ["ㄈㄢ", "ㄧˊ", "ㄅㄟˋ", null, null, "ㄕˋ", null, "ㄉㄜ˙", "ㄌㄧㄤˇ", "ㄅㄟˋ", null, null, "ㄔㄥˊ", "ㄕㄨㄤ", "ㄕㄨˋ", null, "ㄉㄚˊ", "ㄢˋ", "ㄉㄜ˙", "ㄨㄟˇ", "ㄅㄚ˙", "ㄏㄜˊ", "ㄔㄥˊ", "ㄕㄨˋ", "ㄧ", "ㄧㄤˋ", null], "要再練習的：": ["ㄧㄠˋ", "ㄗㄞˋ", "ㄌㄧㄢˋ", "ㄒㄧˊ", "ㄉㄜ˙", null], "跳格子：一次跳兩格，答案都是雙數。": ["ㄊㄧㄠˋ", "ㄍㄜˊ", "ㄗ˙", null, "ㄧ", "ㄘˋ", "ㄊㄧㄠˋ", "ㄌㄧㄤˇ", "ㄍㄜˊ", null, "ㄉㄚˊ", "ㄢˋ", "ㄉㄡ", "ㄕˋ", "ㄕㄨㄤ", "ㄕㄨˋ", null], "選出正確的算式和答案": ["ㄒㄩㄢˇ", "ㄔㄨ", "ㄓㄥˋ", "ㄑㄩㄝˋ", "ㄉㄜ˙", "ㄙㄨㄢˋ", "ㄕˋ", "ㄏㄜˊ", "ㄉㄚˊ", "ㄢˋ"], "錯題本是空的，太棒了！": ["ㄘㄨㄛˋ", "ㄊㄧˊ", "ㄅㄣˇ", "ㄕˋ", "ㄎㄨㄥ", "ㄉㄜ˙", null, "ㄊㄞˋ", "ㄅㄤˋ", "ㄌㄜ˙", null], "隻": ["ㄓ"], "零一二三四五六七八九": ["ㄌㄧㄥˊ", "ㄧ", "ㄦˋ", "ㄙㄢ", "ㄙˋ", "ㄨˇ", "ㄌㄧㄡˋ", "ㄑㄧ", "ㄅㄚ", "ㄐㄧㄡˇ"], "順序反了！要寫「每一份 × 幾份」。": ["ㄕㄨㄣˋ", "ㄒㄩˋ", "ㄈㄢˇ", "ㄌㄜ˙", null, "ㄧㄠˋ", "ㄒㄧㄝˇ", null, "ㄇㄟˇ", "ㄧ", "ㄈㄣˋ", null, null, null, "ㄐㄧˇ", "ㄈㄣˋ", null, null], "顆": ["ㄎㄜ"], "點我翻過來": ["ㄉㄧㄢˇ", "ㄨㄛˇ", "ㄈㄢ", "ㄍㄨㄛˋ", "ㄌㄞˊ"]};
+var COL={1:'#9aa5b1',2:'#f2994a',3:'#27ae60',4:'#2d9cdb',5:'#eb5757',6:'#9b51e0',7:'#f2c94c',8:'#56ccf2',9:'#e86fb0'};
+function $(id){return document.getElementById(id)}
+// ---------- 注音 ----------
+function rb(ch,b){
+  var light=b.indexOf('˙')>=0, body=b.replace('˙',''), tone='';
+  if('ˊˇˋ'.indexOf(body.slice(-1))>=0&&body.length>1){tone=body.slice(-1);body=body.slice(0,-1)}
+  var s='';for(var i=0;i<body.length;i++){s+='<span>'+body[i]+(i==body.length-1&&tone?'<i class="zt">'+tone+'</i>':'')+'</span>'}
+  if(light)s='<span class="l">˙</span>'+s;
+  return '<span class="z"><span class="h">'+ch+'</span><span class="b">'+s+'</span></span>';
+}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+// T(模板, 變數)：模板必須在 ZY 字典裡
+function T(tpl,v){
+  var bs=ZY[tpl],out='';
+  for(var i=0,k=0;i<tpl.length;i++){
+    var ch=tpl[i];
+    if(ch=='{'){var j=tpl.indexOf('}',i);var key=tpl.slice(i+1,j);out+='<b class="nz">'+esc(v[key])+'</b>';k+=j-i+1;i=j;continue}
+    var b=bs?bs[i]:null;
+    out+=b?rb(ch,b):esc(ch);
+  }
+  return out;
+}
+var CN='零一二三四五六七八九';
+function cnNum(n){if(n<10)return CN[n];if(n==10)return'一十';var t=Math.floor(n/10),o=n%10;return(t==1?'十':CN[t]+'十')+(o?CN[o]:'')}
+function kjText(a,b){var p=a*b;return p<10?CN[a]+CN[b]+'得'+CN[p]:CN[a]+CN[b]+cnNum(p)}
+function KJ(a,b){var s=kjText(a,b);var bs=ZY[s];var o='';for(var i=0;i<s.length;i++)o+=bs&&bs[i]?rb(s[i],bs[i]):s[i];return o}
+// ---------- 儲存 ----------
+var S={stars:0,facts:{},wrong:{}};
+try{var raw=localStorage.getItem('tt99');if(raw)S=JSON.parse(raw)}catch(e){}
+function save(){try{localStorage.setItem('tt99',JSON.stringify(S))}catch(e){};$('starCount').textContent=S.stars}
+function rec(a,b,ok){var k=a+'x'+b,f=S.facts[k]||{c:0,w:0,last:1};if(ok){f.c++;f.last=1}else{f.w++;f.last=0;S.wrong[k]=1}
+ if(ok&&f.c>=3&&S.wrong[k]&&f.last)delete S.wrong[k];S.facts[k]=f;save()}
+function level(a,b){var f=S.facts[a+'x'+b];if(!f)return 0;if(f.c>=3&&f.last)return 2;return f.c>0?1:0}
+function addStars(n){S.stars+=n;save()}
+// ---------- 語音 ----------
+function say(t){try{var u=new SpeechSynthesisUtterance(t);u.lang='zh-TW';u.rate=.85;var v=speechSynthesis.getVoices().filter(function(x){return/zh[-_]TW/i.test(x.lang)})[0];if(v)u.voice=v;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
+// ---------- 分頁 ----------
+document.querySelectorAll('nav button').forEach(function(b){b.onclick=function(){go(b.dataset.v)}});
+function go(v){document.querySelectorAll('nav button').forEach(function(x){x.classList.toggle('on',x.dataset.v==v)});
+ document.querySelectorAll('.view').forEach(function(x){x.classList.toggle('on',x.id=='v-'+v)});
+ if(v=='map')drawMap();if(v=='me')drawMe();try{history.replaceState(null,'','#'+v)}catch(e){}window.scrollTo(0,0)}
+var zyOn=true;$('zyBtn').onclick=function(){zyOn=!zyOn;document.body.classList.toggle('nozy',!zyOn);$('zyBtn').innerHTML=zyOn?T('注音：開'):T('注音：關')};
+// ---------- 圖 ----------
+function groupsHTML(a,b){var cols=a<=4?2:3,s='<div class="dots">';for(var g=0;g<b;g++){s+='<div class="grp" style="grid-template-columns:repeat('+cols+',16px)">';for(var i=0;i<a;i++)s+='<span class="dot" style="background:'+COL[a]+'"></span>';s+='</div>'}return s+'</div>'}
+// ---------- 地圖 ----------
+var cur=[3,4];
+function mapHTML(clickable){var s='<tr><th style="background:#555">×</th>';for(var b=1;b<=9;b++)s+='<th style="background:'+COL[b]+'">'+b+'</th>';s+='</tr>';
+ for(var a=1;a<=9;a++){s+='<tr><th style="background:'+COL[a]+'">'+a+'</th>';for(var b=1;b<=9;b++){var lv=level(a,b);var c=(lv==2?'m2':lv==1?'m1':'')+(clickable&&cur[0]==a&&cur[1]==b?' cur':'')+(clickable&&(a==cur[0]&&b<cur[1]||b==cur[1]&&a<cur[0])?' hl':'');s+='<td class="'+c+'" data-a="'+a+'" data-b="'+b+'">'+(a*b)+'</td>'}s+='</tr>'}return s}
+function drawMap(){$('map').innerHTML=mapHTML(true);$('map').querySelectorAll('td').forEach(function(td){td.onclick=function(){cur=[+td.dataset.a,+td.dataset.b];drawMap()}});
+ var a=cur[0],b=cur[1],p=a*b;
+ var add=[];for(var i=0;i<b;i++)add.push(a);
+ $('detail').innerHTML='<div class="eqbig nz">'+a+' × '+b+' = '+p+'</div><div class="kjbig">'+KJ(a,b)+'</div>'+
+ '<div style="text-align:center">'+T('每盤有{a}個，有{b}盤',{a:a,b:b})+'</div>'+groupsHTML(a,b)+
+ '<div style="text-align:center" class="nz"><b>'+add.join(' + ')+' = '+p+'</b></div>'+
+ '<div style="text-align:center">'+T('{a}的{b}倍是{p}',{a:a,b:b,p:p})+'</div>'+
+ (a!=b?'<div class="hint">'+T('交換也一樣：{x}，答案還是{p}',{x:b+'×'+a,p:p})+'</div>':'')+
+ '<div style="text-align:center"><button class="btn w" id="mapSay">'+T('念給我聽')+'</button></div>';
+ $('mapSay').onclick=function(){say(kjText(a,b))};
+}
+// ---------- 口訣卡 ----------
+var cardN=2,cardB=1,cardOrder=[];
+function picks(el,cb,curv,multi){var s='';for(var n=2;n<=9;n++)s+='<button class="pick'+(n==curv?' on':'')+'" data-n="'+n+'" style="background:'+COL[n]+'">'+n+'</button>';el.innerHTML=s;
+ el.querySelectorAll('.pick').forEach(function(p){p.onclick=function(){el.querySelectorAll('.pick').forEach(function(x){x.classList.remove('on')});p.classList.add('on');cb(+p.dataset.n)}})}
+function newCards(n){cardN=n;cardOrder=[1,2,3,4,5,6,7,8,9];cardB=0;showCard()}
+function showCard(){var b=cardOrder[cardB];$('card').classList.remove('flip');
+ setTimeout(function(){$('cardFront').textContent=cardN+' × '+b+' = ?';$('cardBackEq').textContent=cardN+' × '+b+' = '+(cardN*b);$('cardBackKj').innerHTML=KJ(cardN,b)},150);
+ $('cardTip').innerHTML=T('點我翻過來');$('cardInfo').innerHTML=T('第{i}張，共{n}張',{i:cardB+1,n:cardOrder.length})}
+$('card').onclick=function(){$('card').classList.toggle('flip');if($('card').classList.contains('flip'))say(kjText(cardN,cardOrder[cardB]))};
+$('cardSay').onclick=function(){say(kjText(cardN,cardOrder[cardB]))};
+$('cardYes').onclick=function(){rec(cardN,cardOrder[cardB],true);nextCard(false)};
+$('cardNo').onclick=function(){rec(cardN,cardOrder[cardB],false);nextCard(true)};
+function nextCard(again){if(again)cardOrder.push(cardOrder[cardB]);cardB++;if(cardB>=cardOrder.length){addStars(1);celebrate();$('cardInfo').innerHTML=T('{n}的口訣練完了！得到1顆星星',{n:cardN});cardB=0;cardOrder=[1,2,3,4,5,6,7,8,9];setTimeout(showCard,1200)}else showCard()}
+picks($('cardPicks'),newCards,2);newCards(2);
+// ---------- 記憶魔法 ----------
+var TR={
+2:function(){return '<div class="hint">'+T('跳格子：一次跳兩格，答案都是雙數。')+'</div><div class="qeq nz" style="font-size:30px">2、4、6、8、10、12、14、16、18</div>'},
+5:function(){return '<div class="hint">'+T('看時鐘：分針走1大格是5分。答案的最後一個數字，不是5就是0。')+'</div>'+clock()},
+4:function(){return '<div class="hint">'+T('翻一倍：4是2的兩倍。先想2的答案，再加一次自己。')+'</div>'+doubleRows(2,4)},
+8:function(){return '<div class="hint">'+T('再翻一倍：8是4的兩倍。答案的最後一個數字是8、6、4、2、0，一直重複。')+'</div>'+doubleRows(4,8)},
+3:function(){return '<div class="hint">'+T('數字鍵盤：答案的最後一個數字是3、6、9，2、5、8，1、4、7。')+'</div>'+keypad()},
+6:function(){return '<div class="hint">'+T('翻一倍：6是3的兩倍。6乘雙數，答案的尾巴和乘數一樣。')+'</div>'+doubleRows(3,6)},
+9:function(){return '<div class="hint">'+T('手指頭魔法：點一根手指把它彎下去，左邊是十位，右邊是個位。')+'</div>'+fingers(3)},
+7:function(){return '<div class="hint">'+T('7的乘法你早就會一大半了！交換一下就是學過的句子，只有7×7=49是新的。')+'</div>'+
+  '<div class="opts nz">'+[1,2,3,4,5,6,8,9].map(function(b){return '<button>7×'+b+' = '+b+'×7 = '+(7*b)+'</button>'}).join('')+'<button class="right">7×7 = 49</button></div>'+
+  '<div class="hint">'+T('七七四十九：7個星期就是49天。')+'</div><div class="hint">'+T('七八五十六：5、6、7、8排好隊，56=7×8。')+'</div>'}
+};
+function clock(){var s='<svg viewBox="-110 -110 220 220" width="220" height="220" style="display:block;margin:auto"><circle r="100" fill="#fff" stroke="#eb5757" stroke-width="6"/>';
+ for(var i=1;i<=12;i++){var an=(i*30-90)*Math.PI/180;s+='<text x="'+(Math.cos(an)*78)+'" y="'+(Math.sin(an)*78+8)+'" text-anchor="middle" font-size="20" font-weight="800">'+i+'</text><text x="'+(Math.cos(an)*55)+'" y="'+(Math.sin(an)*55+6)+'" text-anchor="middle" font-size="14" fill="#eb5757" font-weight="800">'+(i*5)+'</text>'}
+ return s+'<line x1="0" y1="0" x2="0" y2="-70" stroke="#333" stroke-width="5" stroke-linecap="round"/></svg><p class="muted" style="text-align:center">'+T('紅色的數字就是5的乘法答案！')+'</p>'}
+function doubleRows(x,y){var s='<div class="nz" style="font-family:ui-monospace,Menlo,monospace;font-size:22px;font-weight:800;line-height:1.8;text-align:center">';
+ for(var b=1;b<=9;b++)s+=x+'×'+b+'='+(x*b)+' ➜ '+(x*b)+'+'+(x*b)+' = <span style="color:'+COL[y]+'">'+y+'×'+b+'='+(y*b)+'</span><br>';return s+'</div>'}
+function keypad(){var s='<div style="display:flex;gap:20px;justify-content:center;flex-wrap:wrap;align-items:center"><div class="nz" style="display:grid;grid-template-columns:repeat(3,56px);gap:6px">';
+ '123456789'.split('').forEach(function(k){s+='<div style="height:56px;line-height:56px;text-align:center;font-size:26px;font-weight:900;border-radius:10px;border:3px solid #27ae60;background:#e9f8ef">'+k+'</div>'});
+ s+='</div><div class="nz" style="font-size:22px;font-weight:800;line-height:1.7">';for(var b=1;b<=9;b++)s+='3×'+b+' = '+(3*b)+'<br>';return s+'</div></div>'}
+function fingers(k){var s='<div class="fingers nz">';for(var i=1;i<=10;i++){if(i==6)s+='<span class="gap"></span>';s+='<span class="'+(i==k?'down':'')+'" data-f="'+i+'">'+i+'</span>'}
+ var L=k-1,R=10-k;s+='</div><div class="qeq nz" style="font-size:40px">9 × '+k+' = '+L+''+R+'</div><p style="text-align:center">'+T('左邊有{l}根，右邊有{r}根',{l:L,r:R})+'</p>';
+ setTimeout(function(){document.querySelectorAll('.fingers span[data-f]').forEach(function(f){f.onclick=function(){renderFingers(+f.dataset.f)}})},0);return s}
+function renderFingers(k){$('trickBody').innerHTML='<div class="kjbig" style="color:'+COL[9]+'">'+T('{n}的乘法',{n:9})+'</div><div class="hint">'+T('手指頭魔法：點一根手指把它彎下去，左邊是十位，右邊是個位。')+'</div>'+fingers(k)}
+function showTrick(n){$('trickBody').innerHTML='<div class="kjbig" style="color:'+COL[n]+'">'+T('{n}的乘法',{n:n})+'</div>'+TR[n]()}
+picks($('trickPicks'),showTrick,2);showTrick(2);
+// ---------- 數字鍵 ----------
+function makePad(el,onKey){var s='';[1,2,3,4,5,6,7,8,9].forEach(function(k){s+='<button data-k="'+k+'">'+k+'</button>'});s+='<button data-k="del">⌫</button><button data-k="0">0</button><button data-k="ok" class="ok">'+T('確定')+'</button>';el.innerHTML=s;
+ el.querySelectorAll('button').forEach(function(b){b.onclick=function(){onKey(b.dataset.k)}})}
+// ---------- 快問快答 ----------
+var Q={list:[],i:0,ok:0,inp:'',lock:false,t0:0};
+document.querySelectorAll('[data-set]').forEach(function(b){b.onclick=function(){startQuick(b.dataset.set)}});
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function startQuick(set){var pool=[];
+ if(set=='wrong'){Object.keys(S.wrong).forEach(function(k){var p=k.split('x');pool.push([+p[0],+p[1]])});if(!pool.length){go('quick');$('quickSetup').insertAdjacentHTML('beforeend','<p class="fb good">'+T('錯題本是空的，太棒了！')+'</p>');return}
+  while(pool.length<10)pool=pool.concat(pool.slice(0,10-pool.length))}
+ else{set.split(',').forEach(function(a){for(var b=2;b<=9;b++)pool.push([+a,b])})}
+ Q.list=shuffle(pool).slice(0,10);Q.i=0;Q.ok=0;Q.t0=Date.now();Q.miss=[];
+ go('quick');$('quickSetup').style.display='none';$('quickEnd').style.display='none';$('quickPlay').style.display='block';showQ()}
+function showQ(){var q=Q.list[Q.i];Q.inp='';Q.lock=false;$('qA').textContent=q[0];$('qB').textContent=q[1];$('qIn').innerHTML='&nbsp;';$('qFb').innerHTML='';
+ $('qProg').style.width=(Q.i*10)+'%';$('qCount').innerHTML=T('第{i}題，共{n}題',{i:Q.i+1,n:Q.list.length})}
+makePad($('qPad'),function(k){if(Q.lock)return;if(k=='del')Q.inp=Q.inp.slice(0,-1);else if(k=='ok'){checkQ();return}else if(Q.inp.length<2)Q.inp+=k;$('qIn').innerHTML=Q.inp||'&nbsp;'});
+document.addEventListener('keydown',function(e){if(!$('v-quick').classList.contains('on')||$('quickPlay').style.display=='none')return;if(/^[0-9]$/.test(e.key))$('qPad').querySelector('[data-k="'+e.key+'"]').click();if(e.key=='Backspace')$('qPad').querySelector('[data-k="del"]').click();if(e.key=='Enter')$('qPad').querySelector('[data-k="ok"]').click()});
+function checkQ(){if(!Q.inp)return;var q=Q.list[Q.i],p=q[0]*q[1];Q.lock=true;var ok=+Q.inp==p;rec(q[0],q[1],ok);
+ if(ok){Q.ok++;$('qFb').className='fb good';$('qFb').innerHTML=T('答對了！')+' '+KJ(q[0],q[1])}
+ else{Q.miss.push(q);$('qFb').className='fb bad';$('qFb').innerHTML=T('再想想，答案是{p}',{p:p})+'　'+KJ(q[0],q[1])}
+ setTimeout(function(){Q.i++;if(Q.i>=Q.list.length)endQuick();else showQ()},ok?900:2200)}
+function endQuick(){var sec=Math.round((Date.now()-Q.t0)/1000),st=Q.ok==10?3:Q.ok>=8?2:Q.ok>=5?1:0;addStars(st);if(st==3)celebrate();
+ $('quickPlay').style.display='none';$('quickEnd').style.display='block';
+ $('quickEnd').innerHTML='<div class="bigstar nz">'+'⭐'.repeat(st)+'☆'.repeat(3-st)+'</div><p>'+T('答對{ok}題，花了{s}秒',{ok:Q.ok,s:sec})+'</p>'+
+ (Q.miss.length?'<p>'+T('要再練習的：')+'</p><div class="wrongs" style="justify-content:center">'+Q.miss.map(function(q){return '<span>'+q[0]+'×'+q[1]+'='+(q[0]*q[1])+'</span>'}).join('')+'</div>':'<p>'+T('全部答對，你是乘法魔法師！')+'</p>')+
+ '<p><button class="btn" id="qAgain">'+T('再玩一次')+'</button></p>';$('qAgain').onclick=function(){$('quickEnd').style.display='none';$('quickSetup').style.display='block'}}
+// ---------- 考試練習 ----------
+var E={list:[],i:0,ok:0,set:[]};
+document.querySelectorAll('[data-eset]').forEach(function(b){b.onclick=function(){startExam(b.dataset.eset.split(',').map(Number))}});
+function rnd(a,b){return a+Math.floor(Math.random()*(b-a+1))}
+function pickA(){return E.set[rnd(0,E.set.length-1)]}
+var WORD=[
+ ['一盒有{a}顆糖果，{b}盒一共有幾顆？','顆'],
+ ['每個小朋友有{a}張貼紙，{b}個小朋友一共有幾張？','張'],
+ ['一枝鉛筆{a}元，買{b}枝要付多少元？','元'],
+ ['每輛車坐{a}個人，{b}輛車可以坐幾個人？','人'],
+ ['媽媽買了{b}袋蘋果，每袋有{a}個。一共有幾個蘋果？','個'],
+ ['一隻小狗有4隻腳，{b}隻小狗一共有幾隻腳？','隻',4],
+ ['一隻章魚有8隻腳，{b}隻章魚一共有幾隻腳？','隻',8]];
+function genQ(type){var a=pickA(),b=rnd(2,9),p=a*b;
+ if(type=='pic'){b=rnd(2,5);p=a*b;return{kind:'opt',fact:[a,b],html:'<div class="qtext">'+T('每盤有{a}個，有{b}盤。乘法算式是哪一個？',{a:a,b:b})+'</div>'+groupsHTML(a,b),
+   opts:shuffle([[a+' × '+b+' = '+p,1],[b+' × '+a+' = '+p,'rev'],[a+' + '+b+' = '+(a+b),0]]),explain:T('每一份{a}個 × {b}份，寫成{x}',{a:a,b:b,x:a+'×'+b+'='+p})}}
+ if(type=='times')return{kind:'num',fact:[a,b],ans:p,html:'<div class="qtext">'+T('{a}的{b}倍是多少？',{a:a,b:b})+'</div>',explain:T('{a}的{b}倍就是{x}',{a:a,b:b,x:a+'×'+b+'='+p})};
+ if(type=='blank'){var left=Math.random()<.5;return{kind:'num',fact:[a,b],ans:left?a:b,html:'<div class="qtext">'+T('□ 裡要填多少？')+'</div><div class="qeq nz">'+(left?'□ × '+b:a+' × □')+' = '+p+'</div>',explain:T('想一想口訣：')+KJ(a,b)}}
+ if(type=='cmp'){var c,d;if(Math.random()<.35){c=b;d=a}
+   else{c=pickA();d=rnd(2,9)}var l=a*b,r=c*d,sym=l>r?'>':l<r?'<':'=';
+   return{kind:'opt',html:'<div class="qtext">'+T('○ 裡要填哪一個？')+'</div><div class="qeq nz" style="font-size:40px">'+a+'×'+b+' ○ '+c+'×'+d+'</div>',
+   opts:[['>',sym=='>'?1:0],['<',sym=='<'?1:0],['=',sym=='='?1:0]],explain:'<span class="nz">'+a+'×'+b+'='+l+'，'+c+'×'+d+'='+r+'</span>'}}
+ if(type=='seq'){var miss=rnd(2,4),arr=[];for(var i=1;i<=6;i++)arr.push(i==miss+1?'□':a*i);return{kind:'num',ans:a*(miss+1),fact:[a,miss+1],html:'<div class="qtext">'+T('□ 裡是多少？')+'</div><div class="qeq nz" style="font-size:36px">'+arr.join('、')+'</div>',explain:T('一次多{a}',{a:a})}}
+ // word
+ var w=WORD[rnd(0,WORD.length-1)];if(w[2])a=w[2];p=a*b;
+ return{kind:'opt',fact:[a,b],html:'<div class="qtext">'+T(w[0],{a:a,b:b})+'</div><p class="muted">'+T('選出正確的算式和答案')+'</p>',
+  opts:shuffle([[a+' × '+b+' = '+p,1],[b+' × '+a+' = '+p,'rev'],[a+' + '+b+' = '+(a+b),0]]),explain:T('先找「每」一份有幾個：{x}',{x:a+'×'+b+'='+p})}}
+function startExam(set){E.set=set;E.i=0;E.ok=0;var types=shuffle(['pic','times','blank','cmp','seq','word','word','blank']);E.list=types.map(genQ);
+ $('examSetup').style.display='none';$('examEnd').style.display='none';$('examPlay').style.display='block';showE()}
+function showE(){var q=E.list[E.i];$('eProg').style.width=(E.i/E.list.length*100)+'%';$('eCount').innerHTML=T('第{i}題，共{n}題',{i:E.i+1,n:E.list.length});$('eFb').innerHTML='';$('eNext').style.display='none';E.inp='';E.lock=false;
+ var h=q.html;
+ if(q.kind=='opt'){h+='<div class="opts nz">'+q.opts.map(function(o,i){return '<button data-i="'+i+'">'+o[0]+'</button>'}).join('')+'</div>'}
+ else{h+='<div class="qeq nz"><span class="ansshow" id="eIn">&nbsp;</span></div><div class="pad nz" id="ePad"></div>'}
+ $('eQ').innerHTML=h;
+ if(q.kind=='opt')$('eQ').querySelectorAll('.opts button').forEach(function(b){b.onclick=function(){if(E.lock)return;E.lock=true;var o=q.opts[+b.dataset.i];var ok=o[1]===1;
+   $('eQ').querySelectorAll('.opts button').forEach(function(x){if(q.opts[+x.dataset.i][1]===1)x.classList.add('right')});if(!ok)b.classList.add('wrong');
+   finE(ok,o[1]=='rev'?T('順序反了！要寫「每一份 × 幾份」。'):'')}});
+ else makePad($('ePad'),function(k){if(E.lock)return;if(k=='del')E.inp=E.inp.slice(0,-1);else if(k=='ok'){if(!E.inp)return;E.lock=true;finE(+E.inp==q.ans,'');return}else if(E.inp.length<2)E.inp+=k;$('eIn').innerHTML=E.inp||'&nbsp;'})}
+function finE(ok,extra){var q=E.list[E.i];if(q.fact)rec(q.fact[0],q.fact[1],ok);if(ok)E.ok++;
+ $('eFb').className='fb '+(ok?'good':'bad');$('eFb').innerHTML=(ok?T('答對了！'):(extra||T('不對喔，再看一次：'))+(q.ans!=null?' '+T('答案是{p}',{p:q.ans}):''))+'<br>'+q.explain;
+ $('eNext').style.display='block'}
+$('eNextBtn').onclick=function(){E.i++;if(E.i>=E.list.length)endE();else showE()};
+function endE(){var st=E.ok==8?3:E.ok>=6?2:E.ok>=4?1:0;addStars(st);if(st==3)celebrate();$('examPlay').style.display='none';$('examEnd').style.display='block';
+ $('examEnd').innerHTML='<div class="bigstar nz">'+'⭐'.repeat(st)+'☆'.repeat(3-st)+'</div><p>'+T('8題答對{ok}題',{ok:E.ok})+'</p><p><button class="btn" id="eAgain">'+T('再玩一次')+'</button></p>';
+ $('eAgain').onclick=function(){$('examEnd').style.display='none';$('examSetup').style.display='block'}}
+// ---------- 我的星星 ----------
+function drawMe(){var n=0;for(var a=1;a<=9;a++)for(var b=1;b<=9;b++)if(level(a,b)==2)n++;
+ $('meSum').innerHTML='<div class="bigstar nz">⭐ '+S.stars+'</div><p>'+T('已經很熟的有{n}句，共81句',{n:n})+'</p>';
+ $('meMap').innerHTML=mapHTML(false);var ks=Object.keys(S.wrong);
+ $('meWrong').innerHTML=ks.length?ks.map(function(k){var p=k.split('x');return '<span>'+p[0]+'×'+p[1]+'='+(p[0]*p[1])+'</span>'}).join(''):'<p class="muted">'+T('錯題本是空的，太棒了！')+'</p>'}
+$('meWrongGo').onclick=function(){startQuick('wrong')};
+var resetArm=false;$('meReset').onclick=function(){if(!resetArm){resetArm=true;$('meReset').innerHTML=T('真的要清除嗎？再按一次');setTimeout(function(){resetArm=false;$('meReset').innerHTML=T('全部清除重來')},3000);return}
+ S={stars:0,facts:{},wrong:{}};save();drawMe();resetArm=false;$('meReset').innerHTML=T('全部清除重來')};
+// ---------- 彩帶 ----------
+function celebrate(){var c=document.createElement('canvas');c.className='confetti';c.width=innerWidth;c.height=innerHeight;document.body.appendChild(c);var x=c.getContext('2d'),ps=[];
+ for(var i=0;i<120;i++)ps.push({x:Math.random()*c.width,y:-20-Math.random()*200,v:2+Math.random()*4,r:4+Math.random()*5,c:COL[1+Math.floor(Math.random()*9)],s:Math.random()*6});
+ var t=0;(function f(){x.clearRect(0,0,c.width,c.height);ps.forEach(function(p){p.y+=p.v;p.x+=Math.sin((t+p.s)/10)*2;x.fillStyle=p.c;x.fillRect(p.x,p.y,p.r,p.r*1.6)});t++;if(t<160)requestAnimationFrame(f);else c.remove()})()}
+// ---------- 啟動 ----------
+save();var h=(location.hash||'').slice(1);go(['map','cards','tricks','quick','exam','me'].indexOf(h)>=0?h:'map');
+</script>
+</body>
+</html>
